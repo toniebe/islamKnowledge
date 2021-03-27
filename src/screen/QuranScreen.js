@@ -7,16 +7,18 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
+  StatusBar,
 } from 'react-native';
 import QuranLogo from '../assets/icon/quranWhite.png';
 import SuratCard from '../components/SuratCard';
+import SearchInput, {createFilter} from 'react-native-search-filter';
 import axios from 'axios';
 
-const QuranScreen = () => {
-  const [masterDataSource, setMasterDataSource] = useState([]);
-  const [filteredDataSource, setFilteredDataSource] = useState([]);
+const KEYS_TO_FILTERS = ['name', 'place'];
+
+const QuranScreen = ({navigation}) => {
   const [data, setData] = useState([]);
-  const [search, setSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const getData = () => {
     axios
@@ -24,60 +26,47 @@ const QuranScreen = () => {
         'https://raw.githubusercontent.com/penggguna/QuranJSON/master/quran.json',
       )
       .then(function (response) {
-        setMasterDataSource(response.data);
-        setFilteredDataSource(response.data);
+        setData(response.data);
       });
   };
   useEffect(() => {
     getData();
   }, []);
 
-  const searchFilterFunction = (text) => {
-    // Check if searched text is not blank
-    if (text) {
-      // Inserted text is not blank
-      // Filter the masterDataSource
-      // Update FilteredDataSource
-      const newData = masterDataSource.filter(function (item) {
-        const itemData = item.title
-          ? item.title.toUpperCase()
-          : ''.toUpperCase();
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
-      setFilteredDataSource(newData);
-      setSearch(text);
-    } else {
-      // Inserted text is blank
-      // Update FilteredDataSource with masterDataSource
-      setFilteredDataSource(masterDataSource);
-      setSearch(text);
-    }
-  };
-
-  const searchUpdate = (term) => {
+  const searchUpdated = (term) => {
     setSearchTerm({searchTerm: term});
   };
 
   return (
     <View style={styles.container}>
+      <StatusBar
+        barStyle="light-content"
+        translucent
+        backgroundColor="rgba(0,0,0,0)"
+      />
       <View style={styles.header}>
         <Image source={QuranLogo} style={styles.quranLogo} />
       </View>
       <View style={styles.body}>
-        <TextInput
+        <SearchInput
+          onChangeText={(term) => {
+            searchUpdated(term);
+          }}
           style={styles.searchInput}
-          onChangeText={(text) => searchFilterFunction(text)}
-          value={search}
-          underlineColorAndroid="transparent"
-          placeholder="Search Here"
+          placeholder="Type a message to search"
         />
 
         <FlatList
-          data={filteredDataSource}
+          data={data}
           contentContainerStyle={styles.list}
           renderItem={({item}) => (
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('QuranDetail', {
+                  key: item.number_of_surah,
+                  surah: item.name,
+                })
+              }>
               <SuratCard
                 number={item.number_of_surah}
                 surat={item.name}

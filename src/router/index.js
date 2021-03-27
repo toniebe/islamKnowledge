@@ -9,6 +9,7 @@ import ExitScreen from '../screen/ExitScreen';
 import HomeLogo from '../assets/icon/home.png';
 import QuranLogo from '../assets/icon/quran.png';
 import LogoutLogo from '../assets/icon/exit.png';
+import QuranDetailScreen from '../screen/QuranDetailScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -87,6 +88,11 @@ const Router = () => {
       <Stack.Screen
         name="Dashboard"
         component={Dashboard}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="QuranDetail"
+        component={QuranDetailScreen}
         options={{headerShown: false}}
       />
     </Stack.Navigator>
